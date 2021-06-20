@@ -217,7 +217,7 @@ export default {
       let deep = this.calNodeDeep(draggingNode);
       this.maxDeep = 1;
 
-      console.log(draggingNode, deep);
+      //console.log(draggingNode, deep);
 
       if (type == "inner") {
         return dropNode.level + deep < 4;
@@ -240,8 +240,73 @@ export default {
       return this.maxDeep - Node.level + 1;
     },
     handleDrop(draggingNode, dropNode, dropType, ev) {
-        console.log('tree drop: ', dropNode.label, dropType);
-      },
+      console.log(draggingNode, dropNode, dropType);
+      // 需要修改的字段catLevel sort  parentCid
+      //必须修改：自身节点以及新兄弟节点的排序
+      //原兄弟不用修改
+      //判断是否需要修改所有子节点的level
+      let data = [];
+      // if (draggingNode.level == dropNode.level) {
+        //更改新级联拖拽
+        let brother = dropType=='inner'?dropNode.childNodes:dropNode.parent.childNodes
+        for (let i = 0; i < brother.length; i++) {
+          let node = brother[i];
+          //let catLevel = node.level;
+          let catLevel = node.level;
+          let sort = i;
+          let catId = node.key;
+          let parentCid =
+            dropNode.parent.key == undefined ? 0 : dropNode.parent.key;
+          data.push({ catLevel, sort, catId, parentCid });
+        }
+        if((dropType=='inner'||dropNode.level!=draggingNode.level)&draggingNode.childNodes.length>0){//利联发生变化 值需要修改所有子节点level
+          let j = 0;
+          if(dropType=='inner'){
+            j = dropNode.level-draggingNode.level+1
+          }else{
+            j=dropNode.level-draggingNode.level
+          }
+          this.changeNodeLevel(draggingNode,j,data)
+        }
+      // } else {
+      //   const j = dropNode.level - draggingNode.level;
+      //   for (let i = 0; i < dropNode.childNodes.length; i++) {
+      //     let node = dropNode.childNodes[i];
+      //     //let catLevel = node.level;
+      //     //let catLevel = dropType == "inner" ? dropNode.level - 1 : node.level;
+      //     if(node.key==dropNode.key){
+      //       this.changeNodeLevel(node,j,data)
+      //     }
+      //     let sort = i;
+      //     let catId = node.key;
+      //     let parentCid =
+      //       dropNode.parent.key == undefined ? 0 : dropNode.parent.key;
+          
+      //     data.push({ catLevel, sort, catId, parentCid });
+      //   }
+        
+
+      //}
+      // if (draggingNode.level != dropNode.level) {
+      //   //等级属性发生
+      //   //let catLevel = dropType='inner'
+      // }
+
+      console.log(data);
+    },
+    changeNodeLevel(node,j,data){//递归改变Node节点和它下面的所有子节点的level +j,并放入data中
+      for (let i = 0; i < node.childNodes.length; i++) {
+        let child = node.childNodes[i];
+        //console.log('child',child);
+        let catLevel = child.level+j;
+        let sort = i;
+        let catId = child.key;
+        let parentCid = node.key;
+        this.changeNodeLevel(child,j,data);
+        data.push({ catLevel, sort, catId, parentCid });
+      }
+    }
+
   },
 };
 </script>
