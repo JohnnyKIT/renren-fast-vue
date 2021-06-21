@@ -24,16 +24,26 @@
       </span>
     </el-dialog>
 
+    <el-switch
+      v-model="draggable"
+      active-text="开启拖拽"
+      inactive-text="关闭拖拽"
+    >
+    </el-switch>
+    <el-button v-if="draggable" @click="batchUpdate">批量保存</el-button>
+    <el-button type="danger" @click="batchRemove">批量删除</el-button>
     <!--这是一棵树-->
     <el-tree
       :data="treeData"
       :props="treeProps"
       node-key="catId"
+      show-checkbox
       :default-expanded-keys="expanedKeys"
-      draggable
+      :draggable="draggable"
       :allow-drop="allowDrop"
       @node-drop="handleDrop"
       @node-click="handleNodeClick"
+      ref="tree"
     >
       <span class="custom-tree-node" slot-scope="{ node, data }">
         <span>{{ node.label }}</span>
@@ -67,6 +77,7 @@
 export default {
   data() {
     return {
+      draggable: false,
       treeData: [],
       expanedKeys: [],
       treeProps: {
@@ -85,6 +96,7 @@ export default {
       },
       CategoryFormTitle: "",
       maxDeep: 1, //用于计算节点深度的变量
+      updateNode: [], //将要更新的节点
     };
   },
   created() {
@@ -245,29 +257,34 @@ export default {
       //必须修改：自身节点以及新兄弟节点的排序
       //原兄弟不用修改
       //判断是否需要修改所有子节点的level
-      let data = [];
+      //let data = [];
       // if (draggingNode.level == dropNode.level) {
-        //更改新级联拖拽
-        let brother = dropType=='inner'?dropNode.childNodes:dropNode.parent.childNodes
-        for (let i = 0; i < brother.length; i++) {
-          let node = brother[i];
-          //let catLevel = node.level;
-          let catLevel = node.level;
-          let sort = i;
-          let catId = node.key;
-          let parentCid =
-            dropNode.parent.key == undefined ? 0 : dropNode.parent.key;
-          data.push({ catLevel, sort, catId, parentCid });
+      //更改新级联拖拽
+      let brother =
+        dropType == "inner" ? dropNode.childNodes : dropNode.parent.childNodes;
+      for (let i = 0; i < brother.length; i++) {
+        let node = brother[i];
+        //let catLevel = node.level;
+        let catLevel = node.level;
+        let sort = i;
+        let catId = node.key;
+        let parentCid =
+          dropNode.parent.key == undefined ? 0 : dropNode.parent.key;
+        this.updateNode.push({ catLevel, sort, catId, parentCid });
+      }
+      if (
+        (dropType == "inner" || dropNode.level != draggingNode.level) &
+        (draggingNode.childNodes.length > 0)
+      ) {
+        //利联发生变化 值需要修改所有子节点level
+        let j = 0;
+        if (dropType == "inner") {
+          j = dropNode.level - draggingNode.level + 1;
+        } else {
+          j = dropNode.level - draggingNode.level;
         }
-        if((dropType=='inner'||dropNode.level!=draggingNode.level)&draggingNode.childNodes.length>0){//利联发生变化 值需要修改所有子节点level
-          let j = 0;
-          if(dropType=='inner'){
-            j = dropNode.level-draggingNode.level+1
-          }else{
-            j=dropNode.level-draggingNode.level
-          }
-          this.changeNodeLevel(draggingNode,j,data)
-        }
+        this.changeNodeLevel(draggingNode, j);
+      }
       // } else {
       //   const j = dropNode.level - draggingNode.level;
       //   for (let i = 0; i < dropNode.childNodes.length; i++) {
@@ -281,10 +298,9 @@ export default {
       //     let catId = node.key;
       //     let parentCid =
       //       dropNode.parent.key == undefined ? 0 : dropNode.parent.key;
-          
+
       //     data.push({ catLevel, sort, catId, parentCid });
       //   }
-        
 
       //}
       // if (draggingNode.level != dropNode.level) {
@@ -292,21 +308,70 @@ export default {
       //   //let catLevel = dropType='inner'
       // }
 
-      console.log(data);
+      console.log(this.updateNode);
     },
-    changeNodeLevel(node,j,data){//递归改变Node节点和它下面的所有子节点的level +j,并放入data中
+    changeNodeLevel(node, j) {
+      //递归改变Node节点和它下面的所有子节点的level +j,并放入data中
       for (let i = 0; i < node.childNodes.length; i++) {
         let child = node.childNodes[i];
         //console.log('child',child);
-        let catLevel = child.level+j;
+        let catLevel = child.level + j;
         let sort = i;
         let catId = child.key;
         let parentCid = node.key;
-        this.changeNodeLevel(child,j,data);
-        data.push({ catLevel, sort, catId, parentCid });
+        this.changeNodeLevel(child, j);
+        this.updateNode.push({ catLevel, sort, catId, parentCid });
       }
-    }
-
+    },
+    batchUpdate() {
+      this.$http({
+        url: this.$http.adornUrl("product/category/batch/update"),
+        method: "post",
+        data: this.$http.adornData(this.updateNode, false),
+      }).then(({ data }) => {
+        this.$message({
+          type: "success",
+          message: "批量修改成功!",
+        });
+        this.updateNode = [];
+      });
+    },
+    batchRemove() {
+      console.log("batchRemove");
+      let node = this.$refs.tree.getCheckedNodes();
+      let nodesName = [];
+      let ids = [];
+      for (let i = 0; i < node.length; i++) {
+        const item = node[i];
+        nodesName.push(item.name);
+        ids.push(item.catId);
+      }
+      console.log(node);
+      this.$confirm(`是否批量删除以下节点 ? [${nodesName}] `, "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+          this.$http({
+            url: this.$http.adornUrl("product/category/delete"),
+            method: "post",
+            data: this.$http.adornData(ids, false),
+          }).then(({ data }) => {
+            this.$message({
+              type: "success",
+              message: "批量删除成功!",
+            });
+            this.initTreeData();
+          });
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消删除",
+          });
+        });
+    },
   },
 };
 </script>
