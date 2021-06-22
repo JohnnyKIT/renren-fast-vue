@@ -58,11 +58,18 @@
       >
       </el-table-column>
       <el-table-column
-        prop="logo"
+       
         header-align="center"
         align="center"
-        label="品牌logo地址"
+        label="品牌logo"
       >
+       <template slot-scope="scope">
+       <!-- <el-image
+      style="width: 100px; height: 100px"
+      :src="scope.row.logo"
+      fit="cover"></el-image> -->
+      <img :src="scope.row.logo" width="110px" height="110px">
+       </template>
       </el-table-column>
       <el-table-column
         prop="descript"
@@ -79,8 +86,8 @@
       >
         <template slot-scope="scope">
           <el-switch
-            active-value:1
-            inactive-value:0
+            :active-value="0"
+            :inactive-value="1"
             v-model="scope.row.showStatus"
             active-color="#13ce66"
             inactive-color="#ff4949"

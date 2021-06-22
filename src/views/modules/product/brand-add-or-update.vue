@@ -27,13 +27,13 @@
           placeholder="显示状态[0-不显示；1-显示]"
         ></el-input> -->
         <el-switch
-            active-value:1
-            inactive-value:0
-            v-model="dataForm.showStatus"
-            active-color="#13ce66"
-            inactive-color="#ff4949"
-          >
-          </el-switch>
+          :active-value="0"
+          :inactive-value="1"
+          v-model="dataForm.showStatus"
+          active-color="#13ce66"
+          inactive-color="#ff4949"
+        >
+        </el-switch>
       </el-form-item>
       <el-form-item label="检索首字母" prop="firstLetter">
         <el-input
@@ -53,9 +53,9 @@
 </template>
 
 <script>
-import SingleUpload from '../../../components/upload/singleUpload.vue'
+import SingleUpload from "../../../components/upload/singleUpload.vue";
 export default {
-  components:{SingleUpload},
+  components: { SingleUpload },
   data() {
     return {
       visible: false,
@@ -66,7 +66,7 @@ export default {
         descript: "",
         showStatus: "",
         firstLetter: "",
-        sort: "",
+        sort: 0,
       },
       dataRule: {
         name: [{ required: true, message: "品牌名不能为空", trigger: "blur" }],
@@ -84,9 +84,36 @@ export default {
           },
         ],
         firstLetter: [
-          { required: true, message: "检索首字母不能为空", trigger: "blur" },
+          {
+            validator: (rule, value, callback) => {
+              if (value == "") {
+                callback(new Error("检索首字母不能为空！"));
+              }
+              if (!/^[a-zA-z]$/.test(value)) {
+                callback(new Error("输入内容必须是a-z/A-Z"));
+              } 
+                callback();
+              
+            },
+            trigger: "blur",
+          },
         ],
-        sort: [{ required: true, message: "排序不能为空", trigger: "blur" }],
+        sort: [
+          {
+            validator: (rule, value, callback) => {
+              console.log(value);
+              if (value == "") {
+                callback(new Error("排序不能为空"));
+              }
+              if (value<0) {
+                callback(new Error("必须填入正整数"));
+              } 
+                callback();
+              
+            },
+            trigger: "blur",
+          },
+        ],
       },
     };
   },
