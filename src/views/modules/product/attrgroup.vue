@@ -97,6 +97,7 @@ import AddOrUpdate from './attrgroup-add-or-update'
 export default {
     data () {
       return {
+        catId:0,
         dataForm: {
           key: ''
         },
@@ -115,14 +116,18 @@ export default {
     components:{category,AddOrUpdate},
     methods: {
         handleNodeClick(data,node){
+          if(node.level===3){
             console.log("父元素感知到节点点击事件：",data,node);
+            this.catId = node.key;
+            this.getDataList();
+          }
         },
         // 获取数据列表
       getDataList () {
         this.dataListLoading = true
         this.$http({
-          url: this.$http.adornUrl('product/attrgroup/list'),
-          method: 'get',
+          url: this.$http.adornUrl(`product/attrgroup/list/${this.catId}`),
+          method: 'post',
           params: this.$http.adornParams({
             'page': this.pageIndex,
             'limit': this.pageSize,

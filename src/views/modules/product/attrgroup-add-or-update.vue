@@ -17,7 +17,12 @@
       <el-input v-model="dataForm.icon" placeholder="组图标"></el-input>
     </el-form-item>
     <el-form-item label="所属分类id" prop="catelogId">
-      <el-input v-model="dataForm.catelogId" placeholder="所属分类id"></el-input>
+      <!-- <el-input v-model="dataForm.catelogId" placeholder="所属分类id"></el-input> -->
+      <el-cascader
+    v-model="catelogs"
+    :options="categorys"
+    :props="{ expandTrigger: 'hover',label:'name',value:'catId',children:'childrens' }"
+    ></el-cascader>
     </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
@@ -53,10 +58,12 @@
           icon: [
             { required: true, message: '组图标不能为空', trigger: 'blur' }
           ],
-          catelogId: [
-            { required: true, message: '所属分类id不能为空', trigger: 'blur' }
-          ]
-        }
+          // catelogId: [
+          //   { required: true, message: '所属分类id不能为空', trigger: 'blur' }
+          // ]
+        },
+        categorys:[],
+        catelogs:[]
       }
     },
     methods: {
@@ -87,7 +94,7 @@
         this.$refs['dataForm'].validate((valid) => {
           if (valid) {
             this.$http({
-              url: this.$http.adornUrl(` product/attrgroup/${!this.dataForm.attrGroupId ? 'save' : 'update'}`),
+              url: this.$http.adornUrl(`product/attrgroup/${!this.dataForm.attrGroupId ? 'save' : 'update'}`),
               method: 'post',
               data: this.$http.adornData({
                 'attrGroupId': this.dataForm.attrGroupId || undefined,
@@ -95,7 +102,7 @@
                 'sort': this.dataForm.sort,
                 'descript': this.dataForm.descript,
                 'icon': this.dataForm.icon,
-                'catelogId': this.dataForm.catelogId
+                'catelogId': this.catelogs[this.catelogs.length-1]
               })
             }).then(({data}) => {
               if (data && data.code === 0) {
@@ -114,7 +121,23 @@
             })
           }
         })
+      },
+      initCategroys(){
+        this.$http({
+        url: this.$http.adornUrl("product/category/list/tree"),
+        method: "get",
+      }).then(({ data }) => {
+        if (data && data.code === 0) {
+          console.log(data);
+          this.categorys = data.category;
+        } else {
+        }
+      });
       }
+
+    },
+    created(){
+      this.initCategroys();
     }
   }
 </script>
