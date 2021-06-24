@@ -60,7 +60,7 @@
             编辑
           </el-button>
           <el-button
-            v-if="data.childrens.length == 0"
+            v-if="data.childrens==null"
             type="text"
             size="mini"
             @click="() => removeBtn(node, data)"

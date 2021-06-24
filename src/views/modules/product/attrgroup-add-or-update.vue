@@ -2,7 +2,8 @@
   <el-dialog
     :title="!dataForm.attrGroupId ? '新增' : '修改'"
     :close-on-click-modal="false"
-    :visible.sync="visible">
+    :visible.sync="visible"
+    @closed="Dialogclosed">
     <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" label-width="80px">
     <el-form-item label="组名" prop="attrGroupName">
       <el-input v-model="dataForm.attrGroupName" placeholder="组名"></el-input>
@@ -19,8 +20,9 @@
     <el-form-item label="所属分类id" prop="catelogId">
       <!-- <el-input v-model="dataForm.catelogId" placeholder="所属分类id"></el-input> -->
       <el-cascader
-    v-model="catelogs"
+    v-model="dataForm.catelogPath"
     :options="categorys"
+    filterable
     :props="{ expandTrigger: 'hover',label:'name',value:'catId',children:'childrens' }"
     ></el-cascader>
     </el-form-item>
@@ -43,7 +45,8 @@
           sort: '',
           descript: '',
           icon: '',
-          catelogId: ''
+          catelogId: '',
+          catelogPath:[]
         },
         dataRule: {
           attrGroupName: [
@@ -62,8 +65,7 @@
           //   { required: true, message: '所属分类id不能为空', trigger: 'blur' }
           // ]
         },
-        categorys:[],
-        catelogs:[]
+        categorys:[]
       }
     },
     methods: {
@@ -84,6 +86,8 @@
                 this.dataForm.descript = data.attrGroup.descript
                 this.dataForm.icon = data.attrGroup.icon
                 this.dataForm.catelogId = data.attrGroup.catelogId
+                this.dataForm.catelogPath = data.attrGroup.catelogPath
+                console.log('dataForm',this.dataForm);
               }
             })
           }
@@ -102,7 +106,7 @@
                 'sort': this.dataForm.sort,
                 'descript': this.dataForm.descript,
                 'icon': this.dataForm.icon,
-                'catelogId': this.catelogs[this.catelogs.length-1]
+                'catelogId': this.dataForm.catelogPath[this.dataForm.catelogPath.length-1]
               })
             }).then(({data}) => {
               if (data && data.code === 0) {
@@ -133,6 +137,9 @@
         } else {
         }
       });
+      },
+      Dialogclosed(){
+        this.dataForm.catelogPath = []
       }
 
     },
