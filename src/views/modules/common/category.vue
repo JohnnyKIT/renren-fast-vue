@@ -28,7 +28,7 @@ export default {
       menus: [],
       expandedKey: [],
       defaultProps: {
-        children: "children",
+        children: "childrens",
         label: "name"
       }
     };
@@ -53,7 +53,7 @@ export default {
         url: this.$http.adornUrl("product/category/list/tree"),
         method: "get"
       }).then(({ data }) => {
-        this.menus = data.data;
+        this.menus = data.category;
       });
     },
     nodeclick(data, node, component) {
