@@ -61,7 +61,7 @@ export default {
   methods: {
     getCategorys() {
       this.$http({
-        url: this.$http.adornUrl("product/category/list/tree"),
+        url: this.$http.adornUrl("/product/category/list/tree"),
         method: "get"
       }).then(({ data }) => {
         this.categorys = data.category;

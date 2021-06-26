@@ -642,7 +642,7 @@ export default {
       if (!this.dataResp.steped[1]) {
         this.$http({
           url: this.$http.adornUrl(
-            `product/attr/sale/list/${this.spu.catalogId}`
+            `/product/attr/sale/list/${this.spu.catalogId}`
           ),
           method: "get",
           params: this.$http.adornParams({
@@ -668,7 +668,7 @@ export default {
       if (!this.dataResp.steped[0]) {
         this.$http({
           url: this.$http.adornUrl(
-            `product/attrgroup/${this.spu.catalogId}/withattr`
+            `/product/attrgroup/${this.spu.catalogId}/withattr`
           ),
           method: "get",
           params: this.$http.adornParams({})
@@ -700,7 +700,7 @@ export default {
       })
         .then(() => {
           this.$http({
-            url: this.$http.adornUrl("product/spuinfo/save"),
+            url: this.$http.adornUrl("/product/spuinfo/save"),
             method: "post",
             data: this.$http.adornData(this.spu, false)
           }).then(({ data }) => {

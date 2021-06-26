@@ -105,7 +105,7 @@ export default {
   methods: {
     getMenus() {
       this.$http({
-        url: this.$http.adornUrl("product/category/list/tree"),
+        url: this.$http.adornUrl("/product/category/list/tree"),
         method: "get"
       }).then(({ data }) => {
         console.log("成功获取到菜单数据...", data.category);
@@ -126,7 +126,7 @@ export default {
       })
         .then(() => {
           this.$http({
-            url: this.$http.adornUrl("product/category/delete"),
+            url: this.$http.adornUrl("/product/category/delete"),
             method: "post",
             data: this.$http.adornData(catIds, false)
           }).then(({ data }) => {
@@ -141,7 +141,7 @@ export default {
     },
     batchSave() {
       this.$http({
-        url: this.$http.adornUrl("product/category/batch/update"),
+        url: this.$http.adornUrl("/product/category/batch/update"),
         method: "post",
         data: this.$http.adornData(this.updateNodes, false)
       }).then(({ data }) => {
@@ -252,7 +252,7 @@ export default {
 
       //发送请求获取当前节点最新的数据
       this.$http({
-        url: this.$http.adornUrl(`product/category/info/${data.catId}`),
+        url: this.$http.adornUrl(`/product/category/info/${data.catId}`),
         method: "get"
       }).then(({ data }) => {
         //请求成功
@@ -300,7 +300,7 @@ export default {
     editCategory() {
       var { catId, name, icon, productUnit } = this.category;
       this.$http({
-        url: this.$http.adornUrl("product/category/update-detail"),
+        url: this.$http.adornUrl("/product/category/update-detail"),
         method: "post",
         data: this.$http.adornData({ catId, name, icon, productUnit }, false)
       }).then(({ data }) => {
@@ -320,7 +320,7 @@ export default {
     addCategory() {
       console.log("提交的三级分类数据", this.category);
       this.$http({
-        url: this.$http.adornUrl("product/category/save"),
+        url: this.$http.adornUrl("/product/category/save"),
         method: "post",
         data: this.$http.adornData(this.category, false)
       }).then(({ data }) => {
@@ -346,7 +346,7 @@ export default {
       })
         .then(() => {
           this.$http({
-            url: this.$http.adornUrl("product/category/delete"),
+            url: this.$http.adornUrl("/product/category/delete"),
             method: "post",
             data: this.$http.adornData(ids, false)
           }).then(({ data }) => {
