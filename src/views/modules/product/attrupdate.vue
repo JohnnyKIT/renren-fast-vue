@@ -97,7 +97,7 @@ export default {
       let _this = this;
       this.$http({
         url: this.$http.adornUrl(
-          `//product/attrgroup/${this.catalogId}/withattr`
+          `/product/attrgroup/${this.catalogId}/withattr`
         ),
         method: "get",
         params: this.$http.adornParams({})
