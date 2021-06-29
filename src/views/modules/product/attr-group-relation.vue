@@ -188,7 +188,7 @@ export default {
       this.visible = true;
       this.$http({
         url: this.$http.adornUrl(
-          "product/attrgroup/" + this.attrGroupId + "/attr/relation"
+          "/product/attrgroup/" + this.attrGroupId + "/attr/relation"
         ),
         method: "get",
         params: this.$http.adornParams({})
@@ -204,7 +204,7 @@ export default {
       this.dataListLoading = true;
       this.$http({
         url: this.$http.adornUrl(
-          "product/attrgroup/" + this.attrGroupId + "/noattr/relation"
+          "/product/attrgroup/" + this.attrGroupId + "/noattr/relation"
         ),
         method: "get",
         params: this.$http.adornParams({
